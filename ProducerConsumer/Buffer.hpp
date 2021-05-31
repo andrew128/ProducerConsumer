@@ -11,10 +11,12 @@
 #include <mutex>
 #include <condition_variable>
 #include <stdio.h>
+ 
+#define BUFFER_CAPACITY 10
 
 class Buffer {
     // Buffer fields
-    int buffer [10];
+    int buffer [BUFFER_CAPACITY];
     int buffer_size;
     int left; // index where variables are put inside of buffer (produced)
     int right; // index where variables are removed from buffer (consumed)
