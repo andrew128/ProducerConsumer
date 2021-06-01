@@ -14,14 +14,14 @@ Buffer::Buffer() {
     right = 0;
 }
 
-void Buffer::produce(int num) {
+void Buffer::produce(int thread_id, int num) {
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
-    std::cout << "produce called " << num << "\n";
+    
+    std::cout << "thread " << thread_id << " produced " << num << "\n";
     
     // Wait if the buffer is full
     not_full.wait(unique_lock, [this]() {
-        std::cout << "produce " << buffer_size << "\n";
         return buffer_size != BUFFER_CAPACITY;
     });
     
@@ -32,8 +32,6 @@ void Buffer::produce(int num) {
     right = (right + 1) % BUFFER_CAPACITY;
     buffer_size++;
     
-    std::cout << "produce buffer size " << buffer_size << "\n";
-    
     // Unlock unique lock
     unique_lock.unlock();
     
@@ -41,26 +39,23 @@ void Buffer::produce(int num) {
     not_empty.notify_one();
 }
 
-int Buffer::consume() {
+int Buffer::consume(int thread_id) {
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
-    std::cout << "consume called\n";
     
     // Wait if buffer is empty
     not_empty.wait(unique_lock, [this]() {
-        std::cout << "consume " << buffer_size << "\n";
         return buffer_size != 0;
     });
     
     // Getvalue from position to remove in buffer
     int result = buffer[left];
     
-    std::cout << "Consumed: " << result << "\n";
+    std::cout << "thread " << thread_id << " consumed " << result << "\n";
     
     // Update appropriate fields
     left = (left + 1) % BUFFER_CAPACITY;
     buffer_size--;
-    std::cout << "consume buffer size " << buffer_size << "\n";
     
     // Unlock unique lock
     unique_lock.unlock();

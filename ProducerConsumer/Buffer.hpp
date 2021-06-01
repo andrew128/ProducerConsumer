@@ -28,10 +28,10 @@ class Buffer {
     
 public:
     // Place integer inside of buffer
-    void produce(int num);
+    void produce(int thread_id, int num);
     
     // Remove integer from buffer
-    int consume();
+    int consume(int thread_id);
     
     Buffer();
 };
