@@ -32,6 +32,8 @@ public:
     
     // Remove integer from buffer
     int consume();
+    
+    Buffer();
 };
 
 #endif /* Buffer_hpp */

@@ -5,9 +5,17 @@
 //  Created by Andrew Wei on 5/31/21.
 //
 
+#include <iostream>
 #include "Buffer.hpp"
 
+Buffer::Buffer() {
+    buffer_size = 0;
+    left = 0;
+    right = 0;
+}
+
 void Buffer::produce(int num) {
+    std::cout << "produce called\n";
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
     
@@ -31,6 +39,7 @@ void Buffer::produce(int num) {
 }
 
 int Buffer::consume() {
+    std::cout << "consume called\n";
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
     
