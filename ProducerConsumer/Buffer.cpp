@@ -8,7 +8,7 @@
 #include "Buffer.hpp"
 
 void Buffer::produce(int num) {
-    // Acquire a unique lock on the mutex.
+    // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
     
     // Wait if the buffer is full
@@ -20,7 +20,7 @@ void Buffer::produce(int num) {
     buffer[left] = num;
     
     // Update appropriate fields
-    left = (left + 1) % left;
+    left = (left + 1) % BUFFER_CAPACITY;
     buffer_size++;
     
     // Unlock unique lock
@@ -31,6 +31,27 @@ void Buffer::produce(int num) {
 }
 
 int Buffer::consume() {
+    // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
-    return 0;
+    
+    // Wait if buffer is empty
+    not_empty.wait(unique_lock, [buffer_size_copy = buffer_size]() {
+        return buffer_size_copy != 0;
+    });
+    
+    // Getvalue from position to remove in buffer
+    int result = buffer[right];
+    
+    // Update appropriate fields
+    right = (right - 1) % BUFFER_CAPACITY;
+    buffer_size--;
+    
+    // Unlock unique lock
+    unique_lock.unlock();
+    
+    // Notify a single thread that the buffer isn't full
+    not_full.notify_one();
+    
+    // Return result
+    return result;
 }
