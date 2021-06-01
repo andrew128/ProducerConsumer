@@ -15,21 +15,24 @@ Buffer::Buffer() {
 }
 
 void Buffer::produce(int num) {
-    std::cout << "produce called\n";
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
+    std::cout << "produce called " << num << "\n";
     
     // Wait if the buffer is full
-    not_full.wait(unique_lock, [buffer_size_copy = buffer_size]() {
-        return buffer_size_copy != BUFFER_CAPACITY;
+    not_full.wait(unique_lock, [this]() {
+        std::cout << "produce " << buffer_size << "\n";
+        return buffer_size != BUFFER_CAPACITY;
     });
     
     // Add input to buffer
-    buffer[left] = num;
+    buffer[right] = num;
     
     // Update appropriate fields
-    left = (left + 1) % BUFFER_CAPACITY;
+    right = (right + 1) % BUFFER_CAPACITY;
     buffer_size++;
+    
+    std::cout << "produce buffer size " << buffer_size << "\n";
     
     // Unlock unique lock
     unique_lock.unlock();
@@ -39,21 +42,25 @@ void Buffer::produce(int num) {
 }
 
 int Buffer::consume() {
-    std::cout << "consume called\n";
     // Acquire a unique lock on the mutex
     std::unique_lock<std::mutex> unique_lock(mtx);
+    std::cout << "consume called\n";
     
     // Wait if buffer is empty
-    not_empty.wait(unique_lock, [buffer_size_copy = buffer_size]() {
-        return buffer_size_copy != 0;
+    not_empty.wait(unique_lock, [this]() {
+        std::cout << "consume " << buffer_size << "\n";
+        return buffer_size != 0;
     });
     
     // Getvalue from position to remove in buffer
-    int result = buffer[right];
+    int result = buffer[left];
+    
+    std::cout << "Consumed: " << result << "\n";
     
     // Update appropriate fields
-    right = (right - 1) % BUFFER_CAPACITY;
+    left = (left + 1) % BUFFER_CAPACITY;
     buffer_size--;
+    std::cout << "consume buffer size " << buffer_size << "\n";
     
     // Unlock unique lock
     unique_lock.unlock();

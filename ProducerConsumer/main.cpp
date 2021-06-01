@@ -14,9 +14,6 @@
 void produceInt(Buffer &buffer) {
     // Generate random number between 1 and 10
     int new_int = rand() % 10 + 1;
-    
-    std::cout << "Produced: " << new_int << "\n";
-    
     buffer.produce(new_int);
 }
 
@@ -25,7 +22,7 @@ void produceInt(Buffer &buffer) {
 void consumeInt(Buffer &buffer) {
     int result = buffer.consume();
     
-    std::cout << "Consumed: " << result << "\n";
+//    std::cout << "Consumed: " << result << "\n";
 }
 
 int main(int argc, const char * argv[]) {
